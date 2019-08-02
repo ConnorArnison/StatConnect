@@ -6,33 +6,31 @@ import pickle
 
 
 class HWData:
-    def __init__(self, hostname, time, cpufreq, cpupercent, memory, temps):
+    def __init__(self, hostname, time, cpufreq, cpupercent, memory):
         self.hostname = hostname
         self.timestamp = time
         self.cpufreq = cpufreq
         self.cpupercent = cpupercent
         self.memory = memory
-        self.temps = temps
 
 
-def MeasureData():
+def measure_data():
     hostname = socket.gethostname()
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
     cpufreq = psutil.cpu_freq()
     cpupercent = psutil.cpu_percent(interval=1)
     memory = psutil.virtual_memory()
-    temps = psutil.sensors_temperatures()
-    return [hostname, st, cpufreq, cpupercent, memory, temps]
+    return [hostname, st, cpufreq, cpupercent, memory]
 
 
-def EncodeData(hostname, time, cpufreq, cpupercent, memory, temps):
-    dataObject = HWData(hostname, time, cpufreq, cpupercent, memory, temps)
+def encode_data(hostname, time, cpufreq, cpupercent, memory):
+    dataObject = HWData(hostname, time, cpufreq, cpupercent, memory)
     dataPickle = pickle.dumps(dataObject)
     return dataPickle
 
 
-host = socket.gethostname()
+host = "192.168.1.14"
 port = 2004
 
 tcpClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,7 +38,7 @@ tcpClient.connect((host, port))
 
 
 while True:
-    current_reading = MeasureData()
-    current_reading = EncodeData(current_reading[0], current_reading[1], current_reading[2], current_reading[3], current_reading[4], current_reading[5])
+    current_reading = measure_data()
+    current_reading = encode_data(current_reading[0], current_reading[1], current_reading[2], current_reading[3], current_reading[4])
     tcpClient.sendall(current_reading)
     time.sleep(2)

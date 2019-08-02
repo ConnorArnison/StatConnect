@@ -1,33 +1,35 @@
 import socket
-from threading import Thread
+import  threading
+import datetime
+import time
 from socketserver import ThreadingMixIn
 import  pickle
+import signal
+import sys
 
 
 class HWData:
-    def __init__(self, hostname, time, cpufreq, cpupercent, memory, temps):
+    def __init__(self, hostname, time, cpufreq, cpupercent, memory):
         self.hostname = hostname
         self.timestamp = time
         self.cpufreq = cpufreq
         self.cpupercent = cpupercent
         self.memory = memory
-        self.temps = temps
 
 
-class ClientThread(Thread):
+class ClientThread(threading.Thread):
 
     def __init__(self, ip, port):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
         self.ip = ip
         self.port = port
         print("[+] New server connection " + ip + ":" + str(port))
 
     def run(self):
         while True:
-            data = conn.recv(2048)
+            data = conn.recv(20480)
             data = pickle.loads(data)
-                # Handle Data here
-
+            print(self.ip + ":" + str(self.port) + "," + str(data.timestamp) + "," + str(data.hostname) + "," + str(data.cpufreq[0]) + "," + str(data.cpupercent) + "," + str(data.memory[2]))
 
 TCP_IP = '192.168.1.14'
 TCP_PORT = 2004
